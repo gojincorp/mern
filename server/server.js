@@ -71,7 +71,7 @@ MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true}).then(conn
 	db = client.db('issuetracker')
 
 	app.listen(7072, () => {
-		console.log('App started on port 7072....')
+		console.log('App started on port 7072...')
 	})
 }).catch(error => {
 	console.log('ERROR:  ', error)

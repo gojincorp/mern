@@ -11,7 +11,7 @@ function IssueTable(props) {
 		<table className="bordered-table">
 			<thead>
 				<tr>
-					<th>Id Foobar</th>
+					<th>Id</th>
 					<th>Status</th>
 					<th>Owner</th>
 					<th>Created</th>
