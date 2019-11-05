@@ -1,8 +1,12 @@
 
-const express = require('express')
-const bodyParser = require('body-parser')
-const MongoClient = require('mongodb').MongoClient
-const Issue = require('./issues.js')
+import express from 'express'
+import bodyParser from 'body-parser'
+import { MongoClient } from 'mongodb'
+import Issue from './issues.js'
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
+import SourceMapSupport from 'source-map-support'
+SourceMapSupport.install()
 
 const app = express()
 app.use(express.static('static'))
@@ -67,7 +71,7 @@ MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true}).then(conn
 	db = client.db('issuetracker')
 
 	app.listen(7072, () => {
-		console.log('App started on port 7072...')
+		console.log('App started on port 7072....')
 	})
 }).catch(error => {
 	console.log('ERROR:  ', error)

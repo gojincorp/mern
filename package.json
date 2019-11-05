@@ -7,20 +7,25 @@
     "compile": "webpack",
     "watch": "webpack-dev-server --hot --inline",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -w server server/server.js"
+    "start": "nodemon -w dist dist/server.js",
+    "compile-server": "babel server --presets=@babel/preset-env --out-dir=dist --source-maps",
+    "watch-server": "babel server --presets=@babel/preset-env --out-dir=dist --source-maps --watch"
   },
   "author": "Eric Yee",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "mongodb": "^3.3.3"
+    "mongodb": "^3.3.3",
+    "regenerator-runtime": "^0.13.3",
+    "core-js": "^3.3.6",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-react": "^7.6.3",
-    "babel-cli": "^6.26.0",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
@@ -34,5 +39,17 @@
     "webpack-dev-server": "^3.9.0",
     "webpack-hot-middleware": "^2.25.0",
     "whatwg-fetch": "^3.0.0"
+  },
+  "babel": {
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"node": true
+				}
+			}
+		]
+	]
   }
 }
