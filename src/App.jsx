@@ -27,18 +27,18 @@ const App = ({ children }) => (
 )
 
 App.propTypes = {
-    children: PropTypes.object.isRequired
+    children: PropTypes.object.isRequired,
 }
 
 const RoutedApp = () => (
     <BrowserRouter>
         <App>
-        <Switch>
-            <Redirect exact from="/" to="/issues" />
-            <Route exact path="/issues" component={withRouter(IssueList)} />
-            <Route path="/issues/:id" component={IssueEdit} />
-            <Route path="*" component={NoMatch} />
-        </Switch>
+            <Switch>
+                <Redirect exact from="/" to="/issues" />
+                <Route exact path="/issues" component={withRouter(IssueList)} />
+                <Route path="/issues/:id" component={IssueEdit} />
+                <Route path="*" component={NoMatch} />
+            </Switch>
         </App>
     </BrowserRouter>
 )

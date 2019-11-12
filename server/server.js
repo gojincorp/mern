@@ -5,8 +5,8 @@ import { MongoClient, ObjectId } from 'mongodb'
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import SourceMapSupport from 'source-map-support'
-import Issue from './issues'
 import path from 'path'
+import Issue from './issues'
 
 SourceMapSupport.install()
 
@@ -58,20 +58,20 @@ app.get('/api/issues/:id', (req, res) => {
     try {
         issueId = new ObjectId(req.params.id)
     } catch (err) {
-        res.status(422).json({ message: `Invalid issue ID format:  ${err}`})
+        res.status(422).json({ message: `Invalid issue ID format:  ${err}` })
         return
     }
-    
+
     db.collection('issues').find({ _id: issueId }).limit(1)
-    .next()
-    .then(issue => {
-        if (!issue) res.status(404).json({ messgage: `No such issue: ${issueId}` })
-        else res.json(issue)
-    })
-    .catch(err => {
-        console.log(error)
-        res.status(500).json({ message: `Internal Server Error: ${err}`})
-    })
+        .next()
+        .then(issue => {
+            if (!issue) res.status(404).json({ messgage: `No such issue: ${issueId}` })
+            else res.json(issue)
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ message: `Internal Server Error: ${err}` })
+        })
 })
 
 app.post('/api/issues', (req, res) => {
@@ -96,6 +96,55 @@ app.post('/api/issues', (req, res) => {
         .catch(error => {
             console.log('ERROR:  ', error)
             res.status(500).json({ message: `Internal Server Error:  ${error}` })
+        })
+})
+
+app.put('/api/issues/:id', (req, res) => {
+    let issueId
+    try {
+        issueId = new ObjectId(req.params.id)
+    } catch (idErr) {
+        res.status(422).json({ message: `Invalid issue ID format:  ${idErr}` })
+        return
+    }
+
+    const issue = req.body
+    delete issue._id
+
+    const err = Issue.validateIssue(issue)
+    if (err) {
+        res.status(422).json({ message: `Invalid request:  ${err}` })
+        return
+    }
+
+    db.collection('issues').updateOne({ _id: issueId }, { $set: Issue.convertIssue(issue) })
+        .then(() => db.collection('issues').find({ _id: issueId }).limit(1).next())
+        .then(updatedIssue => {
+            res.json(updatedIssue)
+        })
+        .catch(updateErr => {
+            console.log(updateErr)
+            res.status(500).json({ message: `Internal Server Error:  ${updateErr}` })
+        })
+})
+
+app.delete('/api/issues/:id', (req, res) => {
+    let issueId
+    try {
+        issueId = new ObjectId(req.params.id)
+    } catch (idErr) {
+        res.status(422).json({ message: `Invalid issue ID format:  ${idErr}` })
+        return
+    }
+
+    db.collection('issues').deleteOne({ _id: issueId })
+        .then((result) => {
+            if (result.deletedCount === 1) res.json({ status: 'OK' })
+            else res.json({ status: 'Warning:  object not found' })
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ message: `Internal Server Error:  ${err}` })
         })
 })
 

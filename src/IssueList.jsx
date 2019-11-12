@@ -6,8 +6,8 @@ import 'whatwg-fetch'
 import IssueAdd from './IssueAdd'
 import IssueFilter from './IssueFilter'
 
-function IssueTable({ issues }) { // Destructing assignment from props
-    const issueRows = issues.map((issue) => <IssueRow key={issue._id} issue={issue} />)
+function IssueTable({ issues, deleteIssue }) { // Destructing assignment from props
+    const issueRows = issues.map((issue) => <IssueRow key={issue._id} issue={issue} deleteIssue={deleteIssue} />)
     return (
         <table className="bordered-table">
             <thead>
@@ -19,6 +19,7 @@ function IssueTable({ issues }) { // Destructing assignment from props
                     <th>Effort</th>
                     <th>Completion Date</th>
                     <th>Title</th>
+                    <th />
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +31,7 @@ function IssueTable({ issues }) { // Destructing assignment from props
 
 IssueTable.propTypes = {
     issues: PropTypes.array,
+    deleteIssue: PropTypes.func.isRequired,
 }
 
 IssueTable.defaultProps = {
@@ -46,31 +48,37 @@ const IssueRow = ({
         completionDate,
         title,
     },
-    children,
-}) => (
-    <tr>
-        <td>
-            <Link to={`/issues/${_id}`}>
-                {_id.substr(-4)}
-            </Link>
-        </td>
-        <td>{status}</td>
-        <td>{owner}</td>
-        <td>{created.toDateString()}</td>
-        <td>{effort}</td>
-        <td>{(completionDate) ? completionDate.toDateString() : ''}</td>
-        <td>{title}</td>
-    </tr>
-)
+    deleteIssue,
+}) => {
+    function onDeleteClick() {
+        deleteIssue(_id)
+    }
+
+    return (
+        <tr>
+            <td>
+                <Link to={`/issues/${_id}`}>
+                    {_id.substr(-4)}
+                </Link>
+            </td>
+            <td>{status}</td>
+            <td>{owner}</td>
+            <td>{created.toDateString()}</td>
+            <td>{effort}</td>
+            <td>{(completionDate) ? completionDate.toDateString() : ''}</td>
+            <td>{title}</td>
+            <td><button type="button" onClick={onDeleteClick}>Delete</button></td>
+        </tr>
+    )
+}
 
 IssueRow.propTypes = {
     issue: PropTypes.object,
-    children: PropTypes.array,
+    deleteIssue: PropTypes.func.isRequired,
 }
 
 IssueRow.defaultProps = {
     issue: {},
-    children: [],
 }
 
 export default class IssueList extends React.Component {
@@ -82,6 +90,7 @@ export default class IssueList extends React.Component {
 
         this.setFilter = this.setFilter.bind(this)
         this.createIssue = this.createIssue.bind(this)
+        this.deleteIssue = this.deleteIssue.bind(this)
     }
 
     componentDidMount() {
@@ -99,8 +108,12 @@ export default class IssueList extends React.Component {
     }
 
     setFilter(query) {
-        const { location: { pathname },
-                history, } = this.props
+        const {
+            location: {
+                pathname,
+            },
+            history,
+        } = this.props
         history.push(`${pathname}${query}`)
     }
 
@@ -139,7 +152,6 @@ export default class IssueList extends React.Component {
         }).then((response) => {
             if (response.ok) {
                 response.json().then((updatedIssue) => {
-                    console.log("createIssue (res):  ", updatedIssue)
                     updatedIssue.created = new Date(updatedIssue.created)
                     if (updatedIssue.completionDate) {
                         updatedIssue.completionDate = new Date(updatedIssue.completionDate)
@@ -157,15 +169,22 @@ export default class IssueList extends React.Component {
         })
     }
 
+    deleteIssue(id) {
+        fetch(`/api/issues/${id}`, { method: 'DELETE' })
+            .then(res => {
+                if (!res.ok) alert('Failed to delete issue')
+                else this.loadData()
+            })
+    }
+
     render() {
         const { issues } = this.state
         const { location: { search } } = this.props
-        console.log("render (list):  ", this.props.location)
         return (
             <div>
-                <IssueFilter setFilter={this.setFilter} initFilter={queryString.parse(search)}/>
+                <IssueFilter setFilter={this.setFilter} initFilter={queryString.parse(search)} />
                 <hr />
-                <IssueTable issues={issues} />
+                <IssueTable issues={issues} deleteIssue={this.deleteIssue} />
                 <hr />
                 <IssueAdd createIssue={this.createIssue} />
             </div>
@@ -175,9 +194,5 @@ export default class IssueList extends React.Component {
 
 IssueList.propTypes = {
     location: PropTypes.object.isRequired,
-    router: PropTypes.object,
-}
-
-IssueList.defaultProps = {
-    router: {},
+    history: PropTypes.object.isRequired,
 }

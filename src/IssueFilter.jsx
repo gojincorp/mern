@@ -6,7 +6,6 @@ export default class IssueFilter extends React.Component {
     constructor(props) {
         super(props)
         const { initFilter } = props
-        console.log('issueFilte::constructor:  ', initFilter)
         this.state = {
             status: initFilter.status || '',
             effort_gte: initFilter.effort_gte || '',
@@ -20,30 +19,17 @@ export default class IssueFilter extends React.Component {
         this.resetFilter = this.resetFilter.bind(this)
         this.clearFilter = this.clearFilter.bind(this)
     }
-    
-    /*
-    componentWillReceiveProps({ initFilter }) {
-        const { status, effort_gte, effort_lte } = initFilter
-        this.setState( {
-            status: status || '',
-            effort_gte: effort_gte || '',
-            effort_lte: effort_lte || '',
-            changed: false,
-        })
-    }
-    */
 
     UNSAFE_componentWillReceiveProps({ initFilter }) {
-        console.log('UNSAFE_componentWillReceiveProps:  ', initFilter)
         const { status, effort_gte, effort_lte } = initFilter
-        this.setState( {
+        this.setState({
             status: status || '',
             effort_gte: effort_gte || '',
             effort_lte: effort_lte || '',
             changed: false,
         })
     }
-    
+
     onChangeStatus(e) {
         this.setState({ status: e.target.value, changed: true })
     }
@@ -51,33 +37,36 @@ export default class IssueFilter extends React.Component {
     onChangeEffortGte(e) {
         const effortString = e.target.value
         if (effortString.match(/^\d*$/)) {
-            this.setState({ effort_gte: e.target.value, changed: true})
+            this.setState({ effort_gte: e.target.value, changed: true })
         }
     }
 
     onChangeEffortLte(e) {
         const effortString = e.target.value
         if (effortString.match(/^\d*$/)) {
-            this.setState({ effort_lte: e.target.value, changed: true})
+            this.setState({ effort_lte: e.target.value, changed: true })
         }
     }
-    
+
     applyFilter() {
         let newFilter = ''
-        if (this.state.status) newFilter += '&status=' + this.state.status
-        if (this.state.effort_gte) newFilter += '&effort_gte=' + this.state.effort_gte
-        if (this.state.effort_lte) newFilter += '&effort_lte=' + this.state.effort_lte
-        this.props.setFilter(newFilter ? '?' + newFilter.slice(1) : '')
+        const { status, effort_gte, effort_lte } = this.state
+        const { setFilter } = this.props
+        if (status) newFilter += `&status=${status}`
+        if (effort_gte) newFilter += `&effort_gte=${effort_gte}`
+        if (effort_lte) newFilter += `&effort_lte=${effort_lte}`
+        setFilter(newFilter ? `?${newFilter.slice(1)}` : '')
     }
-    
+
     clearFilter() {
-        this.props.setFilter('')
+        const { setFilter } = this.props
+        setFilter('')
     }
-    
+
     resetFilter() {
         const { initFilter } = this.props
         const { status, effort_gte, effort_lte } = initFilter
-        this.setState( {
+        this.setState({
             status: status || '',
             effort_gte: effort_gte || '',
             effort_lte: effort_lte || '',
@@ -86,12 +75,16 @@ export default class IssueFilter extends React.Component {
     }
 
     render() {
-        const Separator = () => <span> | </span>
-        console.log("render (filter):  ", this.state)
+        const {
+            status,
+            effort_gte,
+            effort_lte,
+            changed,
+        } = this.state
         return (
             <div>
                 Status:
-                <select value={this.state.status} onChange={this.onChangeStatus}>
+                <select value={status} onChange={this.onChangeStatus}>
                     <option value="">(Any)</option>
                     <option value="New">New</option>
                     <option value="Open">Open</option>
@@ -101,12 +94,12 @@ export default class IssueFilter extends React.Component {
                     <option value="Closed">Closed</option>
                 </select>
                 &nbsp;Effort between:
-                <input size={5} value={this.state.effort_gte} onChange={this.onChangeEffortGte} />
+                <input size={5} value={effort_gte} onChange={this.onChangeEffortGte} />
                 &nbsp;-&nbsp;
-                <input size={5} value={this.state.effort_lte} onChange={this.onChangeEffortLte} />
-                <button onClick={this.applyFilter}>Apply</button>
-                <button onClick={this.resetFilter} disabled={!this.state.changed}>Reset</button>
-                <button onClick={this.clearFilter}>Clear</button>
+                <input size={5} value={effort_lte} onChange={this.onChangeEffortLte} />
+                <button type="button" onClick={this.applyFilter}>Apply</button>
+                <button type="button" onClick={this.resetFilter} disabled={!changed}>Reset</button>
+                <button type="button" onClick={this.clearFilter}>Clear</button>
             </div>
         )
     }
@@ -114,5 +107,5 @@ export default class IssueFilter extends React.Component {
 
 IssueFilter.propTypes = {
     setFilter: PropTypes.func.isRequired,
-    initFilter: PropTypes.object.isRequired
+    initFilter: PropTypes.object.isRequired,
 }
