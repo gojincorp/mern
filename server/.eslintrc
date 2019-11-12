@@ -1,18 +1,10 @@
 {
-    "extends": "airbnb",
     "env": {
         "node": true,
     },
     "rules": {
-        "no-console": ["warn"],
-        "semi": ["warn", "never"],
-        "indent": ["error", 4],
-        "react/jsx-indent": ["error", 4],
-        "react/forbid-prop-types": ["off"],
-        "no-underscore-dangle": ["off"],
-        "no-param-reassign": ["error", {"props": false}],
-        "no-plusplus": ["off"],
         "global-require": ["off"],
         "arrow-parens": ["off"],
+        "no-console": ["off"],
     },
 }
